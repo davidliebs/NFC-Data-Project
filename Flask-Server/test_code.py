@@ -1,12 +1,6 @@
 import pandas as pd
 from datetime import datetime
+import config_var
 
-# df = pd.DataFrame({"Timestamp": [datetime.now().strftime("%H:%M")], "Room": ["Lounge"]}, columns=["Timestamp", "Room"])
-# df.to_csv()
-
-df = pd.read_csv("test.csv")
-print(df)
-# df1 = pd.DataFrame({"Timestamp": [datetime.now().strftime("%H:%M")], "Room": ["Best room"]}, columns=["Timestamp", "Room"])
-
-# df2 = pd.concat([df, df1])
-# print(df2)
+df = pd.DataFrame({"Timestamp": [datetime.now()], "Room": ["Lounge"]}, columns=["Timestamp", "Room"])
+df.to_csv(config_var.api_csv_file_name, index=False)

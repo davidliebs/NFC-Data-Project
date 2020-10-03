@@ -2,6 +2,16 @@ from flask import Flask, render_template
 import sqlite3
 from datetime import datetime
 import pandas as pd
+import config_var
+
+def store_to_csv(room):
+	main_df = pd.read_csv(config_var.api_csv_file_name)
+	
+	temp_df = pd.DataFrame({"Timestamp": [datetime.now()], "Room": [room]}, columns=["Timestamp", "Room"])
+	
+	appended_df = pd.concat([main_df, temp_df])
+	appended_df.to_csv(config_var.api_csv_file_name, index=False)
+
 
 app = Flask(__name__)
 
@@ -9,64 +19,34 @@ app = Flask(__name__)
 def home_page():
 	return render_template("index.html")
 
-# API endpoint for each room, for each room, log it into the db
+# API endpoint for each room, for each room, log it onto the csv
 @app.route("/lounge")
 def lounge_room():
-	conn = sqlite3.connect("NFC-Data.db")
-	cur = conn.cursor()
-
-	cur.execute("INSERT INTO NFC_Data VALUES(?,?)", (datetime.now().strftime("%H:%M"), "lounge"))
-
-	conn.commit()
-	conn.close()
+	store_to_csv("lounge")
 
 	return render_template("lounge_room.html")
 
 @app.route("/best_room")
 def best_room():
-	conn = sqlite3.connect("NFC-Data.db")
-	cur = conn.cursor()
-
-	cur.execute("INSERT INTO NFC_Data VALUES(?,?)", (datetime.now().strftime("%H:%M"), "best room"))
-
-	conn.commit()
-	conn.close()
+	store_to_csv("best room")
 
 	return render_template("best_room.html")
 
 @app.route("/dining_room")
 def dining_room():
-	conn = sqlite3.connect("NFC-Data.db")
-	cur = conn.cursor()
-
-	cur.execute("INSERT INTO NFC_Data VALUES(?,?)", (datetime.now().strftime("%H:%M"), "dining room"))
-
-	conn.commit()
-	conn.close()
+	store_to_csv("dining room")
 
 	return render_template("dining_room.html")
 
 @app.route("/kitchen_room")
 def kitchen_room():
-	conn = sqlite3.connect("NFC-Data.db")
-	cur = conn.cursor()
-
-	cur.execute("INSERT INTO NFC_Data VALUES(?,?)", (datetime.now().strftime("%H:%M"), "kitchen"))
-
-	conn.commit()
-	conn.close()
+	store_to_csv("kitchen")
 
 	return render_template("kitchen_room.html")
 
 @app.route("/laundry")
 def laundry_room():
-	conn = sqlite3.connect("NFC-Data.db")
-	cur = conn.cursor()
-
-	cur.execute("INSERT INTO NFC_Data VALUES(?,?)", (datetime.now().strftime("%H:%M"), "laundry"))
-
-	conn.commit()
-	conn.close()
+	store_to_csv("laundry")
 
 	return render_template("laundry_room.html")
 
