@@ -7,7 +7,7 @@ import config_var
 def store_to_csv(room):
 	main_df = pd.read_csv(config_var.api_csv_file_name)
 	
-	temp_df = pd.DataFrame({"Timestamp": [datetime.now()], "Room": [room]}, columns=["Timestamp", "Room"])
+	temp_df = pd.DataFrame({config_var.api_csv_file_headers[0]: [datetime.now()], config_var.api_csv_file_headers[1]: [room]}, columns=config_var.api_csv_file_headers)
 	
 	appended_df = pd.concat([main_df, temp_df])
 	appended_df.to_csv(config_var.api_csv_file_name, index=False)
