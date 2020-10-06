@@ -11,15 +11,26 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import lit
 from datetime import datetime
 import pandas as pd
+import psycopg2
 import os
 import sys
 sys.path.insert(1, '../Flask-Server/')
 import config_var
 
+# creating pyspark session
 spark = SparkSession \
 	.builder \
 	.appName("NFC-ETL") \
 	.getOrCreate()
+
+# creating postgres connection
+conn = psycopg2.connect(
+	host="localhost",
+	database="NFC_Data",
+	user="postgres",
+	password="****"
+)
+cur = conn.cursor()
 
 # reading in the csv file to pyspark dataframe
 api_nfc_df = spark.read.csv(os.path.join("../Flask-Server/", config_var.api_csv_file_name), header=True)
@@ -27,12 +38,14 @@ api_nfc_df = spark.read.csv(os.path.join("../Flask-Server/", config_var.api_csv_
 # changing all values in the timestamp column to the current timestamp
 api_nfc_df = api_nfc_df.withColumn(config_var.api_csv_file_headers[0], lit(datetime.now()))
 
-# appending newly formatted csv to the already formatted csv
-nfc_formatted_df = spark.read.csv(config_var.nfc_formatted_csv_name, header=True)
-appended_nfc_formatted_df = nfc_formatted_df.union(api_nfc_df)
+# creating a list from the spark dataframe
+formatted_nfc_list = [(tuple(x)[0].strftime("%Y:%m:%H:%M"), tuple(x)[1]) for x in tuple(api_nfc_df.collect())]
 
-# exporting the pyspark dataframe to csv file
-appended_nfc_formatted_df.toPandas().to_csv(config_var.nfc_formatted_csv_name, header=True, index=False)
+# writing data to the postgresql database
+for tuple_row in formatted_nfc_list:
+	cur.execute("INSERT INTO nfc_formatted_data(Timestamp, Room) VALUES('{}', '{}')".format(tuple_row[0], tuple_row[1]))
+
+conn.commit()
 
 # rewriting the api csv file to a blank csv (with headers)
 # so that we dont reprocess the same data on the next run

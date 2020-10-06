@@ -50,4 +50,9 @@ def laundry_room():
 
 	return render_template("laundry_room.html")
 
-app.run(debug=True)
+# @app.route("display-data")
+# def display_data():
+# 	# fetching data for the html template to display
+# 	pd.
+
+app.run(host="192.168.86.51")
