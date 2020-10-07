@@ -1,8 +1,18 @@
 from flask import Flask, render_template
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 import config_var
+import psycopg2
+
+# creating postgres connection
+conn = psycopg2.connect(
+	host="localhost",
+	database="NFC_Data",
+	user="postgres",
+	password="open1010"
+)
+cur = conn.cursor()
 
 def store_to_csv(room):
 	main_df = pd.read_csv(config_var.api_csv_file_name)
@@ -50,9 +60,15 @@ def laundry_room():
 
 	return render_template("laundry_room.html")
 
-# @app.route("display-data")
-# def display_data():
-# 	# fetching data for the html template to display
-# 	pd.
+@app.route("/display-data")
+def display_data():
+	# formatting the timestamps to scrape all rooms from past x minutes
+	timestamp_to_display = (datetime.now() - timedelta(minutes=config_var.db_search_time)).strftime("%Y-%m-%dT%H:%M:00")
 
-app.run(host="192.168.86.51")
+	# fetching data for the html template to display
+	cur.execute("SELECT * FROM nfc_formatted_data WHERE timestamp > '{}'".format(timestamp_to_display))
+	query_data = cur.fetchall()
+
+	return render_template("display_data.html", room_data=query_data)
+
+app.run(host="192.168.86.51", debug=True)
