@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import sqlite3
 from datetime import datetime, timedelta
 import pandas as pd
@@ -60,15 +60,30 @@ def laundry_room():
 
 	return render_template("laundry_room.html")
 
-@app.route("/display-data")
+@app.route("/display-data", methods=["GET", "POST"])
 def display_data():
-	# formatting the timestamps to scrape all rooms from past x minutes
-	timestamp_to_display = (datetime.now() - timedelta(minutes=config_var.db_search_time)).strftime("%Y-%m-%dT%H:%M:00")
+	if request.method == "POST":
+		# getting the request time query value
+		time_val = request.form.get("time_query")
 
-	# fetching data for the html template to display
-	cur.execute("SELECT * FROM nfc_formatted_data WHERE timestamp > '{}'".format(timestamp_to_display))
-	query_data = cur.fetchall()
+		# formatting the timestamps to scrape all rooms from past x minutes
+		timestamp_to_display = (datetime.now() - timedelta(minutes=int(time_val))).strftime("%Y-%m-%dT%H:%M:00")
 
-	return render_template("display_data.html", room_data=query_data)
+		# fetching data for the html template to display
+		cur.execute("SELECT * FROM nfc_formatted_data WHERE timestamp > '{}'".format(timestamp_to_display))
+		query_data = cur.fetchall()
+			
+		return render_template("display_data.html", room_data=query_data, query_times=config_var.query_times)
+	
+	else:
+		# formatting the timestamps to scrape all rooms from past x minutes
+		timestamp_to_display = (datetime.now() - timedelta(minutes=config_var.db_search_time)).strftime("%Y-%m-%dT%H:%M:00")
+
+		# fetching data for the html template to display
+		cur.execute("SELECT * FROM nfc_formatted_data WHERE timestamp > '{}'".format(timestamp_to_display))
+		query_data = cur.fetchall()
+
+		return render_template("display_data.html", room_data=query_data, query_times=config_var.query_times)
+
 
 app.run(host="192.168.86.51", debug=True)

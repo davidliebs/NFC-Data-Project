@@ -5,6 +5,17 @@
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 	</head>
 	<body>
+		<form action="/display-data", method="POST">
+			<label>Select how far back you want to query: </label>
+			<select name="time_query">
+				{%for query_time in query_times%}
+					<option value={{query_time}}>{{query_time}}</option>
+				{%endfor%}
+			</select>
+			<input type="submit" value="Submit">
+		<br>
+		</form>
+
 		<table class="table table-hover", width="50%">
 			<thead>
 				<tr scope="col">
