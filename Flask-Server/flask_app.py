@@ -10,7 +10,7 @@ conn = psycopg2.connect(
 	host="localhost",
 	database="NFC_Data",
 	user="postgres",
-	password="open1010"
+	password="******"
 )
 cur = conn.cursor()
 
