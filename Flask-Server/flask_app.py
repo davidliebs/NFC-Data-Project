@@ -86,4 +86,4 @@ def display_data():
 		return render_template("display_data.html", room_data=query_data, query_times=config_var.query_times)
 
 
-app.run(host="192.168.86.51", debug=True)
+app.run(host="0.0.0.0", debug=True)
